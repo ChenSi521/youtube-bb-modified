@@ -29,10 +29,10 @@ debug = False
 
 # The data sets to be downloaded
 d_sets = [
-          #'yt_bb_detection_train',
-          #'yt_bb_detection_validation',
+          'yt_bb_detection_train',
+          'yt_bb_detection_validation',
           'yt_bb_classification_train',
-          #'yt_bb_classification_validation',
+          'yt_bb_classification_validation',
           ]
 
 # The classes included and their indices
