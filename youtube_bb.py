@@ -29,10 +29,10 @@ debug = False
 
 # The data sets to be downloaded
 d_sets = [
-          'yt_bb_detection_train',
-          'yt_bb_detection_validation',
+          #'yt_bb_detection_train',
+          #'yt_bb_detection_validation',
           'yt_bb_classification_train',
-          'yt_bb_classification_validation',
+          #'yt_bb_classification_validation',
           ]
 
 # The classes included and their indices
@@ -140,34 +140,43 @@ class xml_annot(object):
 FNULL = open(os.devnull, 'w')
 f = open('error-youtube_dl-yt_id.txt', 'w')
 f1 = open('error-ffmpeg-yt_id.txt', 'w')
+f2 = open('right-yt_id.txt', 'r')
+yt_id = set([line.rstrip("\n") for line in f2.readlines()])
+f2.close()
+f2 = open('right-yt_id.txt', 'a')
 # Download and cut a clip to size
 def dl_and_cut(vid):
 
   d_set_dir = vid.clips[0].d_set_dir
 
   # Use youtube_dl to download the video
-  try:
-    check_call(['youtube-dl', \
+  if vid.yt_id not in yt_id:
+    try:
+      check_call(['youtube-dl', \
         #'--no-progress', \
         '-f','best[ext=mp4]', \
         '-o',d_set_dir+'/'+vid.yt_id+'_temp.mp4', \
         'youtu.be/'+vid.yt_id ], \
         stdout=FNULL,stderr=subprocess.STDOUT )
-  except:
-    subprocess.call(['echo', vid.yt_id], stdout=f)
+      subprocess.call(['echo', vid.yt_id], stdout=f2)
+      yt_id.add(vid.yt_id)
+      f2.flush()
+    except:
+      subprocess.call(['echo', vid.yt_id], stdout=f)
+      f.flush()
 
-  for clip in vid.clips:
-    # Verify that the video has been downloaded. Skip otherwise
-    if os.path.exists(d_set_dir+'/'+vid.yt_id+'_temp.mp4'):
-      # Make the class directory if it doesn't exist yet
-      class_dir = d_set_dir+'/'+str(clip.class_id)
-      check_call(' '.join(['mkdir', '-p', class_dir]), shell=True)
+    for clip in vid.clips:
+      # Verify that the video has been downloaded. Skip otherwise
+      if os.path.exists(d_set_dir+'/'+vid.yt_id+'_temp.mp4'):
+        # Make the class directory if it doesn't exist yet
+        class_dir = d_set_dir+'/'+str(clip.class_id)
+        check_call(' '.join(['mkdir', '-p', class_dir]), shell=True)
 
-      # Cut out the clip within the downloaded video and save the clip
-      # in the correct class directory. Full re-encoding is used to maintain
-      # frame accuracy. See here for more detail:
-      # http://www.markbuckler.com/post/cutting-ffmpeg/
-      if debug:
+        # Cut out the clip within the downloaded video and save the clip
+        # in the correct class directory. Full re-encoding is used to maintain
+        # frame accuracy. See here for more detail:
+        # http://www.markbuckler.com/post/cutting-ffmpeg/
+        if debug:
           check_call(['ffmpeg',\
             '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
             '-ss', str(float(clip.start)/1000),\
@@ -175,7 +184,7 @@ def dl_and_cut(vid):
             '-t', str((float(clip.stop)-float(clip.start))/1000),\
             '-threads','1',\
             class_dir+'/'+clip.name+'.mp4'])
-      else:
+        else:
           # If not debugging, hide the error outputs from failed downloads
           try:
             check_call(['ffmpeg',\
@@ -188,9 +197,10 @@ def dl_and_cut(vid):
                 stdout=FNULL,stderr=subprocess.STDOUT )
           except:
               subprocess.call(['echo', vid.yt_id], stdout=f1)
+              f1.flush()
 
-  # Remove the temporary video
-  os.remove(d_set_dir+'/'+vid.yt_id+'_temp.mp4')
+    # Remove the temporary video
+    os.remove(d_set_dir+'/'+vid.yt_id+'_temp.mp4')
 
 
 # Parse the annotation csv file and schedule downloads and cuts
