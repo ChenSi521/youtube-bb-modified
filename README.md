@@ -7,7 +7,7 @@ Changes:
 
 ②If a movie can't be parsed by ffmpeg, it's 'yt_id' will be stored in './error-ffmpeg-yt_id.txt'.
 
-<font size=5>③当下载的时候被中断了，重新启动代码后依然可以接着下载（不会重复下载已经下载过的视频）。</font>
+<font size=5>③当下载的过程被中断了，重新启动代码后依然可以接着下载（不会重复下载已经下载过的视频）。</font>
 
 ④把下载过的视频的yt_id记录在right-yt_id.txt文件夹中。
 
