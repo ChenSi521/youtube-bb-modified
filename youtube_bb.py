@@ -140,9 +140,12 @@ class xml_annot(object):
 FNULL = open(os.devnull, 'w')
 f = open('error-youtube_dl-yt_id.txt', 'w')
 f1 = open('error-ffmpeg-yt_id.txt', 'w')
-f2 = open('right-yt_id.txt', 'r')
-yt_id = set([line.rstrip("\n") for line in f2.readlines()])
-f2.close()
+try:
+  f2 = open('right-yt_id.txt', 'r')
+  yt_id = set([line.rstrip("\n") for line in f2.readlines()])
+  f2.close()
+except:
+  yt_id = set()
 f2 = open('right-yt_id.txt', 'a')
 # Download and cut a clip to size
 def dl_and_cut(vid):
